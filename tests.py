@@ -14,23 +14,23 @@ sys.path.insert(0, str(repo_root))
 
 try:
     from torchfbm import generators, processes, layers, sde, analysis, transforms, rl, loss, augmentations, estimators
-    print("✅ Successfully imported torchfbm modules.")
+    print(" Successfully imported torchfbm modules.")
 except ImportError as e:
-    print(f"❌ ImportError: {e}")
+    print(f" ImportError: {e}")
     print("Make sure you run this script from the parent directory of 'torchfbm'.")
     sys.exit(1)
 
 # Utility for printing
 def log_test(name, result, msg=""):
     if result:
-        print(f"✅ [PASS] {name}: {msg}")
+        print(f" [PASS] {name}: {msg}")
     else:
-        print(f"❌ [FAIL] {name}: {msg}")
+        print(f" [FAIL] {name}: {msg}")
         sys.exit(1)
 
 def run_all_tests():
     print("\n" + "="*50)
-    print("🚀 STARTING TORCH-FBM FULL SUITE TEST")
+    print("STARTING TORCH-FBM FULL SUITE TEST")
     print("="*50 + "\n")
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -190,7 +190,7 @@ def run_all_tests():
     log_test("Frac Augmentation", not torch.allclose(data, aug_data), "Data modified by fGn noise")
 
     print("\n" + "="*50)
-    print("🎉 ALL SYSTEMS GO. LIBRARY IS READY FOR RELEASE.")
+    print("ALL PASSED")
     print("="*50)
 
     return True
@@ -198,7 +198,7 @@ def run_all_tests():
 def run_mathematical_validation_tests():
     """Run additional mathematical property validation tests"""
     print("\n" + "="*60)
-    print("🧮 MATHEMATICAL PROPERTIES VALIDATION")
+    print("MATHEMATICAL PROPERTIES VALIDATION")
     print("="*60 + "\n")
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -217,10 +217,10 @@ def run_mathematical_validation_tests():
             # Test variance scaling (should be roughly constant across different H)
             var = torch.var(fgn)
             assert 0.01 < var < 100, f"Unrealistic variance {var:.3f} at H={H}"
-        print("✅ H boundary behavior: All H values produce finite, reasonable outputs")
+        print("H boundary behavior: All H values produce finite, reasonable outputs")
         tests_passed += 1
     except Exception as e:
-        print(f"❌ H boundary test failed: {e}")
+        print(f"H boundary test failed: {e}")
     
     # Test 2: Self-similarity property check
     print("\n--- Mathematical Test 2: Self-Similarity Property ---")
@@ -245,10 +245,10 @@ def run_mathematical_validation_tests():
         
         # Allow 30% variance due to finite sampling
         assert 0.7 < var_ratio < 1.3, f"Self-similarity violated: ratio {var_ratio:.3f}"
-        print(f"✅ Self-similarity: Variance scaling ratio = {var_ratio:.3f}")
+        print(f"Self-similarity: Variance scaling ratio = {var_ratio:.3f}")
         tests_passed += 1
     except Exception as e:
-        print(f"❌ Self-similarity test failed: {e}")
+        print(f" Self-similarity test failed: {e}")
     
     # Test 3: Bridge endpoint precision
     print("\n--- Mathematical Test 3: Bridge Endpoint Precision ---")
@@ -268,10 +268,10 @@ def run_mathematical_validation_tests():
             assert start_error < 1e-5, f"Bridge start error {start_error:.2e} too large"
             assert end_error < 1e-5, f"Bridge end error {end_error:.2e} too large"
         
-        print("✅ Bridge endpoint precision: All constraints satisfied to machine precision")
+        print("Bridge endpoint precision: All constraints satisfied to machine precision")
         tests_passed += 1
     except Exception as e:
-        print(f"❌ Bridge endpoint test failed: {e}")
+        print(f"Bridge endpoint test failed: {e}")
     
     # Test 4: Long-range dependence vs anti-persistence
     print("\n--- Mathematical Test 4: Long-Range Dependence ---")
@@ -305,10 +305,10 @@ def run_mathematical_validation_tests():
         assert corr_p > 0.05, f"Expected positive correlation for H={H_persistent}, got {corr_p:.4f}"
         assert corr_a < -0.05, f"Expected negative correlation for H={H_anti}, got {corr_a:.4f}"
         
-        print(f"✅ Long-range dependence: H={H_persistent} → r={corr_p:.3f}, H={H_anti} → r={corr_a:.3f}")
+        print(f"Long-range dependence: H={H_persistent} → r={corr_p:.3f}, H={H_anti} → r={corr_a:.3f}")
         tests_passed += 1
     except Exception as e:
-        print(f"❌ Long-range dependence test failed: {e}")
+        print(f"Long-range dependence test failed: {e}")
     
     # Test 5: Generator algorithm consistency
     print("\n--- Mathematical Test 5: Algorithm Consistency ---")
@@ -337,18 +337,18 @@ def run_mathematical_validation_tests():
         assert 0.5 < var_ratio < 2.0, f"Variance ratio DH/Chol = {var_ratio:.3f} out of range"
         assert mean_diff < 0.1, f"Mean difference {mean_diff:.3f} too large"
         
-        print(f"✅ Algorithm consistency: Variance ratio = {var_ratio:.3f}, Mean diff = {mean_diff:.4f}")
+        print(f"Algorithm consistency: Variance ratio = {var_ratio:.3f}, Mean diff = {mean_diff:.4f}")
         tests_passed += 1
     except Exception as e:
-        print(f"❌ Algorithm consistency test failed: {e}")
+        print(f"Algorithm consistency test failed: {e}")
     
     print(f"\n" + "="*60)
-    print(f"📊 MATHEMATICAL VALIDATION: {tests_passed}/{total_tests} TESTS PASSED")
+    print(f" MATHEMATICAL VALIDATION: {tests_passed}/{total_tests} TESTS PASSED")
     if tests_passed == total_tests:
-        print("🎯 All mathematical properties verified!")
+        print(" All mathematical properties verified!")
         return True
     else:
-        print(f"⚠️  {total_tests - tests_passed} mathematical tests failed")
+        print(f"  {total_tests - tests_passed} mathematical tests failed")
         return False
 
 def run_all_tests_extended():
