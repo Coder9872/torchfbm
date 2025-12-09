@@ -13,7 +13,7 @@ Designed for **Quantitative Finance** (Rough Volatility, Geometric fBm) and **De
 
 ---
 
-## 🚀 Features
+##  Features
 
 ### **Core Math (GPU Optimized)**
 *   **Fast Generation:** Davies–Harte algorithm (FFT-based) for $O(N \log N)$ complexity.
@@ -32,7 +32,7 @@ Designed for **Quantitative Finance** (Rough Volatility, Geometric fBm) and **De
 
 ---
 
-## 📦 Install
+##  Install
 
 **From PyPI (Coming Soon):**
 ```bash
@@ -108,7 +108,7 @@ action = noise()
 
 ---
 
-## 📈 Analysis Tools
+##  Analysis Tools
 
 ### Differentiable Hurst Estimation
 Estimate the roughness of a time series in a differentiable manner.
@@ -123,7 +123,7 @@ print(f"Estimated H: {H_est.item():.4f}")
 
 ---
 
-## 📝 Notes
+##  Notes
 
 *   **Speed vs Accuracy:** Use `method='davies_harte'` for large simulations ($N > 2000$). Use `method='cholesky'` for mathematical verification.
 *   **Stability:** The Hurst parameter $H$ is clamped to $[0.01, 0.99]$ to avoid singularities at $H=0$ (Pink Noise) and $H=1$ (Ballistic).
