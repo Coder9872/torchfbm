@@ -17,15 +17,25 @@ def set_seed(seed: int):
 
 # Re-export main APIs for nicer imports
 from .generators import fbm, generate_davies_harte, generate_cholesky
-from .processes import fractional_ou_process, geometric_fbm
-from .layers import FBMNoisyLinear, FractionalPositionalEmbedding
+from .processes import (
+	fractional_ou_process, 
+	geometric_fbm, 
+	reflected_fbm, 
+	fractional_brownian_bridge
+)
+from .layers import (
+	FBMNoisyLinear, 
+	FractionalPositionalEmbedding, 
+	FractionalKernel,
+	fractional_init_
+)
 from .estimators import estimate_hurst
 from .rl import FBMActionNoise
 from .schedulers import get_hurst_schedule
 from .loss import HurstRegularizationLoss, SpectralConsistencyLoss
 from .online import CachedFGNGenerator
 from .analysis import covariance_matrix, plot_acf, spectral_scaling_factor
-from .transforms import fractional_diff
+from .transforms import fractional_diff, fractional_integrate
 from .augmentations import FractionalNoiseAugmentation
 from .sde import NeuralFSDE
 
@@ -33,13 +43,13 @@ __all__ = [
 	# Generators
 	'fbm', 'generate_davies_harte', 'generate_cholesky',
 	# Processes
-	'fractional_ou_process', 'geometric_fbm',
+	'fractional_ou_process', 'geometric_fbm', 'reflected_fbm', 'fractional_brownian_bridge',
 	# Neural layers
-	'FBMNoisyLinear', 'FractionalPositionalEmbedding',
+	'FBMNoisyLinear', 'FractionalPositionalEmbedding', 'FractionalKernel', 'fractional_init_',
 	# Analysis
 	'covariance_matrix', 'plot_acf', 'spectral_scaling_factor',
 	# Transforms
-	'fractional_diff',
+	'fractional_diff', 'fractional_integrate',
 	# Estimators
 	'estimate_hurst',
 	# Loss functions

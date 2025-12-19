@@ -1,0 +1,189 @@
+Metadata-Version: 2.4
+Name: torchfbm
+Version: 0.1.1
+Summary: High-performance Fractional Brownian Motion toolkit for PyTorch with generators, processes, neural layers, and RL support
+Home-page: https://github.com/Coder9872/torchfbm
+Author: Ivan Habib
+Author-email: ivan.habib4@gmail.com
+Project-URL: Bug Reports, https://github.com/Coder9872/torchfbm/issues
+Project-URL: Source, https://github.com/Coder9872/torchfbm
+Project-URL: Documentation, https://github.com/Coder9872/torchfbm/blob/main/README.md
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: torch>=1.9.0
+Requires-Dist: numpy>=1.19.0
+Provides-Extra: dev
+Requires-Dist: pytest>=6.0; extra == "dev"
+Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
+Provides-Extra: rl
+Requires-Dist: stable-baselines3>=1.0; extra == "rl"
+Requires-Dist: gym>=0.18.0; extra == "rl"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# `torch-fbm`
+### Differentiable Fractional Brownian Motion & Rough Volatility for PyTorch
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
+[![arXiv](https://img.shields.io/badge/Topic-Rough_Volatility-b31b1b.svg)](https://arxiv.org/abs/1410.3394)
+[![Build](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
+
+**`torch-fbm`** is a high-performance, GPU-accelerated library for generating and analyzing Fractional Brownian Motion (fBm) and Fractional Gaussian Noise (fGn).
+
+Designed for **Quantitative Finance** (Rough Volatility, Real-Time Streaming), **Deep Reinforcement Learning** (Regime-Aware Exploration), and **Generative Modeling** (Rough Diffusion), it provides differentiable generators and layers that seamlessly integrate into the PyTorch ecosystem.
+
+---
+
+##  Features
+
+### **Core Generators**
+*   **Fast Generation:** Davies–Harte algorithm (FFT-based) for $O(N \log N)$ complexity.
+*   **Exact Generation:** Cholesky decomposition for $O(N^3)$ ground-truth validation.
+*   **Streaming ($O(N^2)$):** `CachedFGNGenerator` for real-time, online noise generation (Incremental Cholesky).
+
+### **Quantitative Finance**
+*   **Rough Processes:** `fractional_ou_process` (Fractional Ornstein-Uhlenbeck) for volatility modeling.
+*   **Asset Pricing:** `geometric_fbm` for simulating asset paths with long memory.
+*   **Constraints:** `reflected_fbm` and `fractional_brownian_bridge` for boundary-constrained modeling and data imputation.
+*   **Stationarity:** `fractional_diff` (FracDiff) for making financial time series stationary while preserving memory.
+
+### **Deep Learning & Diffusion**
+*   **Noisy Layers:** `FBMNoisyLinear` for replacing standard weights with correlated noise.
+*   **Positional Embeddings:** `FractionalPositionalEmbedding` for Transformers on fractal data.
+*   **Diffusion Tools:** `SpectralConsistencyLoss` to enforce $1/f^\beta$ statistics and `HurstScheduler` for annealing roughness during sampling.
+*   **Neural SDEs:** `NeuralFSDE` solver with learnable Hurst parameters.
+
+---
+
+## Install
+
+**From PyPI:**
+```bash
+pip install torch-fbm
+```
+
+**For Development:**
+```bash
+git clone https://github.com/Coder9872/torch-fbm.git
+cd torch-fbm
+pip install -e .
+```
+
+---
+
+## Quick Usage
+
+### 1. Generate Rough Paths (Batch)
+Generate fractional noise on CUDA using the fast Davies-Harte method.
+
+```python
+import torch
+from torchfbm import fbm
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Generate 4 paths of length 1024 with H=0.7 (Trending/Smooth)
+path = fbm(n=1024, H=0.7, size=(4,), method='davies_harte', device=device)
+```
+
+### 2. Real-Time Streaming (Online)
+Use `CachedFGNGenerator` for tick-by-tick simulation (e.g., Live Trading Environment).
+
+```python
+from torchfbm.online import CachedFGNGenerator
+
+stream = CachedFGNGenerator(H=0.3, device=device) # H=0.3 (Rough/Mean Reverting)
+
+for i in range(100):
+    val = stream.step() # Returns next point in O(N^2)
+    print(f"Tick {i}: {val.item():.4f}")
+```
+
+### 3. Deep Learning (Regime-Aware Layers)
+Replace standard `nn.Linear` with `FBMNoisyLinear`.
+
+```python
+from torchfbm import FBMNoisyLinear
+
+# Initialize layer with H=0.5 (Standard)
+layer = FBMNoisyLinear(32, 10, H=0.5, device=device)
+
+# Dynamic Regime Switching
+layer.H = 0.2  # Switch to Rough/Anti-correlated noise
+layer.refresh_noise_stream()
+y = layer(torch.randn(8, 32, device=device))
+```
+
+### 4. Generative Diffusion (Hurst Scheduling)
+Anneal the roughness of noise during the diffusion reverse process.
+
+```python
+from torchfbm.schedulers import get_hurst_schedule
+
+# Start rough (exploration), end smooth (refinement)
+hs = get_hurst_schedule(n_steps=1000, start_H=0.3, end_H=0.7, type='cosine')
+
+for t in reversed(range(1000)):
+    current_H = hs[t]
+    # Use current_H for sampling noise...
+```
+
+### 5. Financial Processes
+Simulate Geometric fBm (Stock Prices) and Fractional OU (Volatility).
+
+```python
+from torchfbm import geometric_fbm, fractional_ou_process
+
+# Stock Price Simulation
+s = geometric_fbm(n=1000, H=0.7, mu=0.05, sigma=0.2, s0=100.0, device=device)
+```
+
+---
+
+## Analysis Tools
+
+```python
+from torchfbm import estimate_hurst, fractional_diff
+
+# Differentiable Hurst Estimation
+H_est = estimate_hurst(path.unsqueeze(0), min_lag=4, max_lag=64)
+
+# Fractional Differentiation (Stationarity + Memory)
+stationary_ts = fractional_diff(path, d=0.4)
+```
+
+---
+
+## Notes
+
+*   **Methods:** Use `method='davies_harte'` for large simulations. Use `method='cholesky'` for exact validation.
+*   **Stability:** $H$ is clamped to $[0.01, 0.99]$.
+*   **License:** MIT License.
+
+***
