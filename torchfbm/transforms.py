@@ -1,7 +1,7 @@
 import torch
 import torch.fft
 
-def fractional_diff(x: torch.Tensor, d: float, dim: int = -1) -> torch.Tensor:
+def fractional_diff(x: torch.Tensor, d: float, dim: int = -1, return_numpy: bool = False) -> torch.Tensor:
     """
     Computes the Fractional Derivative (or Integral if d < 0) using FFT.
     This preserves memory better than standard differencing.
@@ -57,8 +57,8 @@ def fractional_diff(x: torch.Tensor, d: float, dim: int = -1) -> torch.Tensor:
     diff_fft = x_fft * transfer
     x_diff = torch.fft.ifft(diff_fft, dim=dim).real
     
-    return x_diff
+    return x_diff.cpu().numpy() if return_numpy else x_diff
 
-def fractional_integrate(x: torch.Tensor, d: float, dim: int = -1) -> torch.Tensor:
+def fractional_integrate(x: torch.Tensor, d: float, dim: int = -1, return_numpy: bool = False) -> torch.Tensor:
     """Inverse of Fractional Diff. Makes a series 'smoother'."""
-    return fractional_diff(x, -d, dim=dim)
+    return fractional_diff(x, -d, dim=dim, return_numpy=return_numpy)

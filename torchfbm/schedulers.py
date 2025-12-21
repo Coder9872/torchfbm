@@ -1,3 +1,4 @@
+import torch
 def get_hurst_schedule(n_steps: int, start_H: float = 0.3, end_H: float = 0.7, type='linear'):
     """
     Returns a schedule of H values for Diffusion sampling.

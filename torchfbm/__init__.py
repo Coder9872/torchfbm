@@ -15,6 +15,18 @@ def set_seed(seed: int):
 	if torch.cuda.is_available():
 		torch.cuda.manual_seed_all(seed)
 
+def _to_numpy(tensor: torch.Tensor):
+	"""Helper to convert tensor to numpy with proper error handling."""
+	try:
+		return tensor.detach().cpu().numpy()
+	except RuntimeError as e:
+		if "Numpy is not available" in str(e):
+			raise ImportError(
+				"NumPy conversion requested but NumPy is not properly installed or has compatibility issues. "
+				"Please install/upgrade numpy: pip install -U numpy"
+			) from e
+		raise
+
 # Re-export main APIs for nicer imports
 from .generators import fbm, generate_davies_harte, generate_cholesky
 from .processes import (

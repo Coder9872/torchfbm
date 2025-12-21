@@ -1,6 +1,6 @@
 import torch
 
-def estimate_hurst(x: torch.Tensor, min_lag: int = 2, max_lag: int = 20, assume_path: bool = True) -> torch.Tensor:
+def estimate_hurst(x: torch.Tensor, min_lag: int = 2, max_lag: int = 20, assume_path: bool = True, return_numpy: bool = False) -> torch.Tensor:
     """
     Estimates the Hurst Exponent H of a time series x using the 
     Aggregated Variance Method (Vectorized & Differentiable).
@@ -57,4 +57,5 @@ def estimate_hurst(x: torch.Tensor, min_lag: int = 2, max_lag: int = 20, assume_
     # Slope = 2H, so H = Slope / 2
     H_est = slope / 2.0
     
-    return torch.clamp(H_est, 0.01, 0.99)
+    result = torch.clamp(H_est, 0.01, 0.99)
+    return result.cpu().numpy() if return_numpy else result

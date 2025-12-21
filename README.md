@@ -1,4 +1,4 @@
-# `torch-fbm`
+# `torchfbm`
 ### Differentiable Fractional Brownian Motion & Rough Volatility for PyTorch
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -7,7 +7,7 @@
 [![arXiv](https://img.shields.io/badge/Topic-Rough_Volatility-b31b1b.svg)](https://arxiv.org/abs/1410.3394)
 [![Build](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
 
-**`torch-fbm`** is a high-performance, GPU-accelerated library for generating and analyzing Fractional Brownian Motion (fBm) and Fractional Gaussian Noise (fGn).
+**`torchfbm`** is a high-performance, GPU-accelerated library for generating and analyzing Fractional Brownian Motion (fBm) and Fractional Gaussian Noise (fGn).
 
 Designed for **Quantitative Finance** (Rough Volatility, Real-Time Streaming), **Deep Reinforcement Learning** (Regime-Aware Exploration), and **Generative Modeling** (Rough Diffusion), it provides differentiable generators and layers that seamlessly integrate into the PyTorch ecosystem.
 
@@ -38,12 +38,12 @@ Designed for **Quantitative Finance** (Rough Volatility, Real-Time Streaming), *
 
 **From PyPI:**
 ```bash
-pip install torch-fbm
+pip install torchfbm
 ```
 
 **For Development:**
 ```bash
-git clone https://github.com/Coder9872/torch-fbm.git
+git clone https://github.com/Coder9872/torchfbm.git
 cd torch-fbm
 pip install -e .
 ```

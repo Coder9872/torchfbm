@@ -1,7 +1,7 @@
 import torch
 from .generators import generate_davies_harte, generate_cholesky, fbm
 
-def fractional_ou_process(n: int, H: float, theta: float = 0.5, mu: float = 0.0, sigma: float = 1.0, dt: float = 0.01, size: tuple = (1,), method: str = 'davies_harte', device: str = 'cpu', dtype: torch.dtype = torch.float32):
+def fractional_ou_process(n: int, H: float, theta: float = 0.5, mu: float = 0.0, sigma: float = 1.0, dt: float = 0.01, size: tuple = (1,), method: str = 'davies_harte', device: str = 'cpu', dtype: torch.dtype = torch.float32, return_numpy: bool = False):
     """
     Simulates a Fractional Ornstein-Uhlenbeck (fOU) process.
     dX_t = theta * (mu - X_t) * dt + sigma * dW_H(t)
@@ -19,7 +19,7 @@ def fractional_ou_process(n: int, H: float, theta: float = 0.5, mu: float = 0.0,
         gen_func = generate_davies_harte
 
     # 1. Generate Fractional Gaussian Noise (Increments)
-    fgn = gen_func(n, H, size, device=device, dtype=dtype)
+    fgn = gen_func(n, H, size, device=device, dtype=dtype, return_numpy=False)
     
     # 2. Scale noise
     # Standard scaling for fBm increments is dt^H
@@ -36,7 +36,7 @@ def fractional_ou_process(n: int, H: float, theta: float = 0.5, mu: float = 0.0,
     for t in range(n):
         x[..., t+1] = x[..., t] * drift_factor + drift_constant + noise_term[..., t]
         
-    return x
+    return x.cpu().numpy() if return_numpy else x
 
 def geometric_fbm(
     n: int, 
@@ -49,6 +49,7 @@ def geometric_fbm(
     method: str = 'davies_harte',
     device: str = 'cpu',
     dtype: torch.dtype = torch.float32,
+    return_numpy: bool = False
 ):
     """
     Simulates Geometric Fractional Brownian Motion (Asset Prices).
@@ -65,7 +66,7 @@ def geometric_fbm(
     # Generate standard fBm path B_H(t)
     # We use the fbm() wrapper which handles H-clamping and method selection
     # Note: fbm() returns shape (..., n+1) starting at 0
-    fbm_path = fbm(n, H, size=size, method=method, device=device, dtype=dtype)
+    fbm_path = fbm(n, H, size=size, method=method, device=device, dtype=dtype, return_numpy=False)
     
     # Scale time horizon:
     # The fbm() generator assumes T=n (unit steps). We need to scale to T=t_max.
@@ -87,7 +88,8 @@ def geometric_fbm(
     
     log_returns = drift + diffusion
     
-    return s0 * torch.exp(log_returns)
+    result = s0 * torch.exp(log_returns)
+    return result.cpu().numpy() if return_numpy else result
 
 import torch
 from .generators import fbm # Ensure fbm is imported
@@ -153,7 +155,8 @@ def reflected_fbm(
     start_val: float = 0.0,
     size: tuple = (1,), 
     method: str = 'davies_harte',
-    device: str = 'cpu'
+    device: str = 'cpu',
+    return_numpy: bool = False
 ):
     """
     Simulates Reflected Fractional Brownian Motion (Bounded fBm) in [lower, upper].
@@ -174,7 +177,7 @@ def reflected_fbm(
     # Let's diff the fbm path for consistency with the geometric_fbm scaling logic.
     
     # Generate unbounded path first to get correctly scaled increments
-    unbounded_path = fbm(n, H, size, method=method, device=device)
+    unbounded_path = fbm(n, H, size, method=method, device=device, return_numpy=False)
     
     # Scale to t_max and sigma
     scale_factor = sigma * (t_max / n) ** H
@@ -199,7 +202,7 @@ def reflected_fbm(
     # Ensure bounds are floats for JIT
     reflected_path = _apply_reflection(reflected_path, increments, float(lower), float(upper))
     
-    return reflected_path
+    return reflected_path.cpu().numpy() if return_numpy else reflected_path
 
 def fractional_brownian_bridge(
     n: int,
@@ -210,7 +213,8 @@ def fractional_brownian_bridge(
     sigma: float = 1.0,
     size: tuple = (1,),
     method: str = 'davies_harte',
-    device: str = 'cpu'
+    device: str = 'cpu',
+    return_numpy: bool = False
 ):
     """
     Simulates a Fractional Brownian Bridge.
@@ -224,7 +228,7 @@ def fractional_brownian_bridge(
     # 1. Generate a FREE unconditioned path starting at 0
     # We use fbm() to handle H-clamping and method selection
     # shape: (..., n+1)
-    free_path = fbm(n, H, size=size, method=method, device=device)
+    free_path = fbm(n, H, size=size, method=method, device=device, return_numpy=False)
     
     # 2. Scale the free path to physical time/sigma
     # Scale factor for variance over time T is T^(2H)
@@ -256,4 +260,4 @@ def fractional_brownian_bridge(
     # 5. Apply correction and shift start
     bridge = free_path - correction + start_val
     
-    return bridge
+    return bridge.cpu().numpy() if return_numpy else bridge
