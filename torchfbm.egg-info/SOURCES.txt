@@ -4,6 +4,7 @@ setup.py
 torchfbm/__init__.py
 torchfbm/analysis.py
 torchfbm/augmentations.py
+torchfbm/dfa.py
 torchfbm/estimators.py
 torchfbm/generators.py
 torchfbm/layers.py

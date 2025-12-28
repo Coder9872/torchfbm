@@ -5,18 +5,18 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="torchfbm",
-    version="0.2.0",
+    version="0.2.1",
     author="Ivan Habib",
     author_email="ivan.habib4@gmail.com",
     description="High-performance Fractional Brownian Motion toolkit for PyTorch with generators, processes, neural layers, and RL support",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Coder9872/torchfbm",
+    url="https://github.com/i-habib/torchfbm",
     packages=setuptools.find_packages(),
     python_requires=">=3.7",
     install_requires=[
         "torch>=1.9.0",
-        "numpy>=1.19.0,<2.0.0",  # NumPy 2.x has compatibility issues with older PyTorch versions
+        "numpy>=1.19.0",
     ],
     extras_require={
         "dev": [
